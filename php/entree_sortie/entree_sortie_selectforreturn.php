@@ -1,0 +1,39 @@
+<?php
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, Accept");
+header("Access-Control-Allow-Methods: GET");
+
+static $server = '127.0.0.1';
+static $user = 'hadrien';
+static $mdp = 'stage2023';
+static $bdd='Montpellier';
+
+$mysqli = new mysqli($server,$user,$mdp, $bdd, 3306);
+if ($mysqli->connect_errno)
+{
+   echo "Err-1001 : (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+}
+$conn = new mysqli($server,$user,$mdp, $bdd);
+$sql = "SELECT EScode, Alibelle, Aimage, Unom, Uprenom,ESdatesortie, ESdateentree, LOCnumeroe,LOCniveaue,Blibelle
+                FROM entree_sortie
+                INNER JOIN article_stocke ON ESarticleemp = Aid
+                INNER JOIN localisation ON Aloc = LOCid
+                INNER JOIN type_batiment ON LOCbat = Bcode
+                INNER JOIN utilisateur ON ESuti = Uid
+                WHERE ESdateentree = ''
+                ORDER BY ESdatesortie ASC, Alibelle, Unom, Uprenom;";
+ $db_data = array();
+    $result = $conn->query($sql);
+    $row_cnt = $result->num_rows;
+    if($row_cnt > 0){
+        while($row = $result->fetch_assoc()){
+            $db_data[] = $row;
+        }
+        echo json_encode($db_data);
+    }else{
+        echo "ERR_1001";
+    }
+    $conn->close();
+    return;
+?>
